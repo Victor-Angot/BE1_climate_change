@@ -97,7 +97,7 @@ time = np.arange(0, 24, 0.05)  # Time in hours
 
 def radiation_model(data,time):
     K_down_values,  K_up_values, L_star_values,  R_N_values = [], [], [], []
-    time_shift = [(t+data["UTC"])%24 for t in time]
+    time_shift = time # [(t+data["UTC"])%24 for t in time]
     for t in time_shift:
         sigma_C_H = data["sigma_C_H"](t)
         sigma_C_M = data["sigma_C_M"](t)
@@ -145,17 +145,16 @@ for sheet_name in excel_data.sheet_names:
     q = df["Q"].iloc[1:-1].to_numpy()   
 
     K_down_values, K_up_values, L_star_values, R_N_values, time_shift = radiation_model(scenario[sheet_name], time)
-    print(k_down)
     
     plt.figure(figsize=(10, 6))
     plt.plot(t, k_down, label="K-down (W/m²)", linestyle="--", color='red')
     plt.plot(t, k_up, label="K-up (W/m²)", linestyle="--", color='cyan')
     plt.plot(t, l_star, label="L-up + L-down (W/m²)", linestyle="--", color='green')
     plt.plot(t, q, label="Q (W/m²)", linestyle="--", color='purple')
-    plt.plot(time, K_down_values, label='Incoming Shortwave Radiation (K-down)', color='red')
-    plt.plot(time, K_up_values, label='Outgoing Shortwave Radiation (K-up)', color='cyan')
-    plt.plot(time, L_star_values, label='Net Longwave Radiation (L-up+L-down)', color='green')
-    plt.plot(time, R_N_values, label='Net Radiative Flux (Q)', color='purple')
+    plt.plot(time, K_down_values, label='K-down', color='red')
+    plt.plot(time, K_up_values, label='K-up', color='cyan')
+    plt.plot(time, L_star_values, label='L-up+L-down', color='green')
+    plt.plot(time, R_N_values, label='Q', color='purple')
     
     plt.title(f"Radiative Fluxes - {sheet_name}")
     plt.xlabel("Time [hrs]")
