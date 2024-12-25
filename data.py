@@ -62,3 +62,8 @@ scenario = {
         "sigma_C_L": lambda t: 0.12 if (6 < t < 10) else 0,
     },
 }
+
+SIGMA = 5.67e-8  
+EPS_CB = 0.85    
+T_CB = 283.15   
+T_SURFACE = 288.15  
