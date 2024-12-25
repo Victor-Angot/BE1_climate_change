@@ -4,7 +4,20 @@ from datetime import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+from scipy.ndimage import gaussian_filter
 from data import scenario
+
+def UTC(lamb):
+    return lamb/math.pi*12
+
+def t_shift(t, utc):
+    if (t-utc) < 24 and (t-utc)>=0 :
+        ts = t - utc
+    elif (t - utc) >= 24:
+        ts = (t - utc) - 24
+    else:
+        ts = 24 + (t-utc)
+    return ts
 
 def convert_decimal_hours_to_hms(decimal_hours):
     """
@@ -59,9 +72,9 @@ def solar_elevation_angle(phi, delta_s, t, lambda_e):
     param lambda_e: longitude of the location
     """
     sin_psi = math.sin(phi) * math.sin(delta_s) - math.cos(phi) * math.cos(delta_s) * math.cos((math.pi * t / 12) + lambda_e)
-    return sin_psi
+    return math.asin(sin_psi)
 
-def incoming_shortwave_radiation(sin_psi, sigma_CH, sigma_CM, sigma_CL, is_night):
+def incoming_shortwave_radiation(psi, sigma_CH, sigma_CM, sigma_CL):
     """
     :param psi: solar elevation angle (angle of sun above horizon)
     :param sigma_CH: cloud cover (0-1) for high level clouds
@@ -69,11 +82,8 @@ def incoming_shortwave_radiation(sin_psi, sigma_CH, sigma_CM, sigma_CL, is_night
     :param sigma_CL: cloud cover (0-1) for low level clouds
     """
     S0 = 1370 # W/m^2 (solar constant)
-    tau_K = (0.6 + 0.2 * sin_psi) * (1 - 0.4 * sigma_CH) * (1 - 0.7 * sigma_CM) * (1 - 0.4 * sigma_CL)
-    if is_night:
-        K_down = 0
-    else:
-        K_down = S0 * tau_K * sin_psi
+    tau_K = (0.6 + 0.2 * math.sin(psi)) * (1 - 0.4 * sigma_CH) * (1 - 0.7 * sigma_CM) * (1 - 0.4 * sigma_CL)
+    K_down = max(S0 * tau_K * math.sin(psi), 0)
     return K_down
 
 def outgoing_shortwave_radiation(K_down, albedo):
@@ -97,11 +107,16 @@ time = np.arange(0, 24, 0.05)  # Time in hours
 
 def radiation_model(data,time):
     K_down_values,  K_up_values, L_star_values,  R_N_values = [], [], [], []
-    time_shift = time # [(t+data["UTC"])%24 for t in time]
-    for t in time_shift:
-        sigma_C_H = data["sigma_C_H"](t)
-        sigma_C_M = data["sigma_C_M"](t)
-        sigma_C_L = data["sigma_C_L"](t)
+    utc = UTC(data["lambda_e"])
+    time_shift = [t_shift(t, utc) for t in time]
+    sigma_C_H = gaussian_filter([data["sigma_C_H"](t) for t in time], 10)
+    sigma_C_M = gaussian_filter([data["sigma_C_M"](t) for t in time], 10)
+    sigma_C_L = gaussian_filter([data["sigma_C_L"](t) for t in time], 10)
+    plt.figure(figsize=(10, 6))
+    plt.plot(time, sigma_C_H, label='sigma_C_H')
+    plt.plot(time, sigma_C_M, label='sigma_C_M')
+    plt.plot(time, sigma_C_L, label='sigma_C_L')
+    for i, t in enumerate(time_shift):
 
         # Convert time from decimal hours to hours, minutes, seconds
         h, m, s = convert_decimal_hours_to_hms(t)
@@ -110,13 +125,12 @@ def radiation_model(data,time):
         delta_s = solar_declination_angle(data["year"], data["month"], data["day"], h, m, s)
 
         # Compute solar elevation angle and check if it's night
-        sin_psi = solar_elevation_angle(data["phi"], delta_s, t, data["lambda_e"])
-        is_night = math.asin(sin_psi) < 0  # If the solar elevation angle is negative, it's night
+        psi = solar_elevation_angle(data["phi"], delta_s, t, data["lambda_e"])
 
         # Compute radiation components
-        K_down = incoming_shortwave_radiation(sin_psi, sigma_C_H, sigma_C_M, sigma_C_L, is_night)
+        K_down = incoming_shortwave_radiation(psi, sigma_C_H[i], sigma_C_M[i], sigma_C_L[i])
         K_up = outgoing_shortwave_radiation(K_down, data["albedo"])
-        L_star = net_longwave_radiation(sigma_C_H, sigma_C_M, sigma_C_L)
+        L_star = net_longwave_radiation(sigma_C_H[i], sigma_C_M[i], sigma_C_L[i])
         R_N = radiation_budget(K_down, K_up, L_star)
 
         # Append computed values to respective lists
@@ -156,7 +170,7 @@ for sheet_name in excel_data.sheet_names:
     plt.plot(time, L_star_values, label='L-up+L-down', color='green')
     plt.plot(time, R_N_values, label='Q', color='purple')
     
-    plt.title(f"Radiative Fluxes - {sheet_name}")
+    plt.title(f"Radiative Fluxes - {scenario[sheet_name]['title']}")
     plt.xlabel("Time [hrs]")
     plt.ylabel("Radiative Flux [W/m²]")
     plt.xlim(0,24)
