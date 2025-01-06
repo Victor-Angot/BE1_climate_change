@@ -12,7 +12,21 @@ scenario = {
         "sigma_C_H": lambda t :0,
         "sigma_C_M": lambda t: 0.06 if (17 < t < 22) else 0,
         "sigma_C_L": lambda t: 0.06 if (20 < t < 22) else 0,
+        
+        # Uncertainties :
+        "D_j_t": 1,
+        "D_j_r":1,
+        "D_J":1,
+        "Dt": 0.05,
+        "D_sigma_C_H": 0.2,
+        "D_sigma_C_M": 0.2,
+        "D_sigma_C_L": 0.2,
+        "D_S0": 20,
+        "D_alpha":0.15
     },
+        
+        
+        
     "Fig. 2": {
         "title": "Mizuho Station, Antarctica",
         "year": 1979,
@@ -24,7 +38,21 @@ scenario = {
         "sigma_C_H": lambda t :0,
         "sigma_C_M": lambda t :0,
         "sigma_C_L": lambda t :0,
+        
+        # Uncertainties :
+        "D_j_t": 1,
+        "D_j_r":1,
+        "D_J":1,
+        "Dt": 0.05,
+        "D_sigma_C_H": 0.2,
+        "D_sigma_C_M": 0.2,
+        "D_sigma_C_L": 0.2,
+        "D_S0": 20,
+        "D_alpha":0.15        
     },
+        
+        
+        
     "Fig. 3": {
         "title": "Lake Ontario, Grimsby, Ontario",
         "year": 1969,
@@ -36,7 +64,21 @@ scenario = {
         "sigma_C_H": lambda t :0,
         "sigma_C_M": lambda t :0,
         "sigma_C_L": lambda t :0,
+                
+        # Uncertainties :
+        "D_j_t": 1,
+        "D_j_r":1,
+        "D_J":1,
+        "Dt": 0.05,
+        "D_sigma_C_H": 0.2,
+        "D_sigma_C_M": 0.2,
+        "D_sigma_C_L": 0.2,
+        "D_S0": 20,
+        "D_alpha":0.15
     },
+        
+        
+        
     "Fig. 4": {
         "title": "Rothamsted, UK",
         "year": 1963,
@@ -48,7 +90,21 @@ scenario = {
         "sigma_C_H": lambda t: 0.133 if (12 < t < 14) else 0,
         "sigma_C_M": lambda t: 0.5 if (12 < t < 14) else 0,
         "sigma_C_L": lambda t: 0.133 if (12 < t < 14) else 0,
+                
+        # Uncertainties :
+        "D_j_t": 1,
+        "D_j_r":1,
+        "D_J":1,
+        "Dt": 0.05,
+        "D_sigma_C_H": 0.2,
+        "D_sigma_C_M": 0.2,
+        "D_sigma_C_L": 0.2,
+        "D_S0": 20,
+        "D_alpha":0.15
     },
+        
+        
+        
     "Fig. 5": {
         "title": "Cedar River, Washington",
         "year": 1972,
@@ -60,6 +116,17 @@ scenario = {
         "sigma_C_H": lambda t :0,
         "sigma_C_M": lambda t: 0.06 if (6 < t < 13) else 0,
         "sigma_C_L": lambda t: 0.12 if (6 < t < 10) else 0,
+                
+        # Uncertainties :
+        "D_j_t": 1,
+        "D_j_r":1,
+        "D_J":1,
+        "Dt": 0.05,
+        "D_sigma_C_H": 0.2,
+        "D_sigma_C_M": 0.2,
+        "D_sigma_C_L": 0.2,
+        "D_S0": 20,
+        "D_alpha":0.15
     },
 }
 
